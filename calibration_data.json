@@ -1,0 +1,9 @@
+{
+  "smile": {
+    "neutral_intensity": 60.96567327515614,
+    "smile_threshold": 8.0
+  },
+  "head": {
+    "neutral_y": 324.6630434782609
+  }
+}
