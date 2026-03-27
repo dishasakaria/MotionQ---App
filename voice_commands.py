@@ -14,6 +14,8 @@ New in this version:
   • Clipboard management        ("clear clipboard")
 """
 
+from __future__ import annotations
+
 import time
 import threading
 import webbrowser
