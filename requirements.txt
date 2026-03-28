@@ -1,28 +1,39 @@
-# MotionQ dependency set verified on Python 3.9-3.12.
-# Python 3.13+ currently installs a MediaPipe build without mp.solutions.
-
-# Core computer vision and face tracking
 opencv-python>=4.8.0
+mediapipe>=0.10.0
+pyautogui>=0.9.54
 numpy>=1.24.0
-mediapipe==0.10.14; python_version >= "3.9" and python_version < "3.13"
+vosk>=0.3.45
+pyaudio>=0.2.13
+# ── Core computer vision & face tracking ──────────────────────────────────────
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+numpy>=1.24.0
 
-# GUI automation
+# ── GUI automation ─────────────────────────────────────────────────────────────
 pyautogui>=0.9.54
 
-# Audio and speech recognition
+# ── Audio / speech recognition ────────────────────────────────────────────────
 pyaudio>=0.2.13
-SpeechRecognition>=3.10.0
-vosk>=0.3.45
-pyttsx3>=2.90
+SpeechRecognition>=3.10.0    # Google Web Speech API (online fallback)
+vosk>=0.3.45                  # Offline speech recognition (requires model/ folder)
+pyttsx3>=2.90                 # Text-to-speech feedback
 
-# Input control and macro recording
-pynput>=1.7.6
+# ── Input control & macro recording ───────────────────────────────────────────
+pynput>=1.7.6                 # Keyboard/mouse control + macro recording
 
-# OCR support
+# ── OCR: smart click & screen reader ──────────────────────────────────────────
+# NOTE: pytesseract also requires the Tesseract binary to be installed:
+#   Windows : https://github.com/UB-Mannheim/tesseract/wiki
+#   Linux   : sudo apt install tesseract-ocr
+#   macOS   : brew install tesseract
 pytesseract>=0.3.10
-Pillow>=9.0.0
+Pillow>=9.0.0                 # Screenshot processing for OCR
 
-# Window management
-pygetwindow>=0.0.9
+# ── Window management ─────────────────────────────────────────────────────────
+# pygetwindow: switch windows by title (works best on Windows)
+# On Linux, wmctrl is used instead — install with: sudo apt install wmctrl
+pygetwindow>=0.0.9            # pip install pygetwindow  (Windows / macOS)
 
-# Note: tkinter is part of the Python standard library on most systems.
+# ── On-screen keyboard ────────────────────────────────────────────────────────
+# tkinter is part of the Python standard library on most systems.
+# If missing on Linux: sudo apt install python3-tk

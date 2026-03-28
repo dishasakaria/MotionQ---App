@@ -13,7 +13,6 @@ Controls: Q = stop current mode | Ctrl+C = exit
 
 import threading
 import time
-import sys
 import cv2
 import json
 import pyaudio
@@ -24,19 +23,6 @@ from head                import run_head_control
 from calibration_manager import CalibrationManager
 from voice_commands      import VoiceCommandController
 from virtual_keyboard    import run_keyboard_mode   # ← NEW
-
-
-def configure_console_output():
-    # Avoid crashes when terminals can't encode emoji (e.g., Windows cp1252).
-    for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            try:
-                stream.reconfigure(encoding="utf-8", errors="replace")
-            except Exception:
-                stream.reconfigure(errors="replace")
-
-
-configure_console_output()
 
 voice_mode_active = threading.Event()
 
