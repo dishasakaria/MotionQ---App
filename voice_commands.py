@@ -51,6 +51,15 @@ try:
 except ImportError:
     SPEECH_REC_AVAILABLE = False
 
+
+ROBUST_VOSK_AVAILABLE = False
+try:
+    from vosk_backend import RobustVoskListener
+    ROBUST_VOSK_AVAILABLE = True
+except ImportError:
+    print("⚠️  vosk_backend.py not found")
+
+    
 # OCR for smart-click and screen reader
 try:
     import pytesseract
@@ -75,6 +84,16 @@ try:
     PYGETWINDOW_AVAILABLE = True
 except ImportError:
     PYGETWINDOW_AVAILABLE = False
+
+
+
+ROBUST_VOSK_AVAILABLE = False
+try:
+    from vosk_backend import RobustVoskListener
+    ROBUST_VOSK_AVAILABLE = True
+except ImportError:
+    print("⚠️  vosk_backend.py not found — falling back to old recogniser")
+
 
 # ── Contacts ────────────────────────────────────────────────────────────────────
 CONTACTS = {
@@ -1511,15 +1530,30 @@ class VoiceCommandController:
     # ══════════════════════════════════════════════════════════════════════
 
     def _build_recognizer(self):
+        if ROBUST_VOSK_AVAILABLE:
+            print("📡 Using Robust Vosk (Indian accent, offline)")
+            listener = RobustVoskListener(cooldown=2.0)
+            if listener.ready:
+                for text in listener.listen():
+                    if not self._is_speaking:
+                        yield text
+                return
+            print("❌ RobustVoskListener failed — falling back")
+
         if SPEECH_REC_AVAILABLE:
+            print("📡 Falling back to Google Speech API")
             yield from self._listen_google()
-        elif VOSK_AVAILABLE:
+            return
+
+        if VOSK_AVAILABLE:
+            print("📡 Falling back to free-form Vosk")
             yield from self._listen_vosk_free()
-        else:
-            print("❌ No voice recognition available.")
-            while True:
-                yield None
-                time.sleep(1)
+            return
+
+        print("❌ No voice recognition available.")
+        while True:
+            yield None
+            time.sleep(1)
 
     def _listen_vosk_free(self):
         try:
