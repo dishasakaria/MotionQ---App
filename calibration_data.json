@@ -1,9 +1,10 @@
 {
   "smile": {
-    "neutral_intensity": 60.96567327515614,
-    "smile_threshold": 8.0
+    "neutral_intensity": 74.12575342789289,
+    "smile_threshold": 16.307665754136437,
+    "calibrated_at": "2026-05-28 10:36:27"
   },
   "head": {
-    "neutral_y": 324.6630434782609
+    "neutral_y": 329.4835164835165
   }
 }

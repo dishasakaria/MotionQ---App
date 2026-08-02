@@ -105,27 +105,27 @@ CONTACTS = {
 
 # ── App launch map ───────────────────────────────────────────────────────────────
 APP_MAP = {
-    "notepad":      {"linux": "gedit",               "windows": "notepad"},
-    "calculator":   {"linux": "gnome-calculator",    "windows": "calc"},
-    "terminal":     {"linux": "gnome-terminal",      "windows": "cmd"},
-    "file manager": {"linux": "nautilus",            "windows": "explorer"},
-    "files":        {"linux": "nautilus",            "windows": "explorer"},
-    "spotify":      {"linux": "spotify",             "windows": "spotify"},
-    "vscode":       {"linux": "code",                "windows": "code"},
-    "vlc":          {"linux": "vlc",                 "windows": "vlc"},
-    "zoom":         {"linux": "zoom",                "windows": "zoom"},
-    "discord":      {"linux": "discord",             "windows": "discord"},
-    "slack":        {"linux": "slack",               "windows": "slack"},
-    "settings":     {"linux": "gnome-control-center","windows": "ms-settings:"},
-    "chrome":       {"linux": "google-chrome",       "windows": "chrome"},
-    "firefox":      {"linux": "firefox",             "windows": "firefox"},
-    "edge":         {"linux": "microsoft-edge",      "windows": "msedge"},
-    "word":         {"linux": "libreoffice --writer","windows": "winword"},
-    "excel":        {"linux": "libreoffice --calc",  "windows": "excel"},
-    "powerpoint":   {"linux": "libreoffice --impress","windows": "powerpnt"},
-    "paint":        {"linux": "gimp",                "windows": "mspaint"},
-    "explorer":     {"linux": "nautilus",            "windows": "explorer"},
-    "task manager": {"linux": "gnome-system-monitor","windows": "taskmgr"},
+    "notepad":      {"linux": "gedit",               "windows": "start notepad"},
+    "calculator":   {"linux": "gnome-calculator",    "windows": "start calc"},
+    "terminal":     {"linux": "gnome-terminal",      "windows": "start cmd"},
+    "file manager": {"linux": "nautilus",            "windows": "start explorer"},
+    "files":        {"linux": "nautilus",            "windows": "start explorer"},
+    "spotify":      {"linux": "spotify",             "windows": "start spotify"},
+    "vscode":       {"linux": "code",                "windows": "startcode"},
+    "vlc":          {"linux": "vlc",                 "windows": "start vlc"},
+    "zoom":         {"linux": "zoom",                "windows": "start zoom"},
+    "discord":      {"linux": "discord",             "windows": "start discord"},
+    "slack":        {"linux": "slack",               "windows": "start slack"},
+    "settings":     {"linux": "gnome-control-center","windows": "start ms-settings:"},
+    "chrome":       {"linux": "google-chrome",       "windows": "start chrome"},
+    "firefox":      {"linux": "firefox",             "windows": "start firefox"},
+    "edge":         {"linux": "microsoft-edge",      "windows": "start msedge"},
+    "word":         {"linux": "libreoffice --writer","windows": "start winword"},
+    "excel":        {"linux": "libreoffice --calc",  "windows": "start excel"},
+    "powerpoint":   {"linux": "libreoffice --impress","windows": "start powerpnt"},
+    "paint":        {"linux": "gimp",                "windows": "start mspaint"},
+    "explorer":     {"linux": "nautilus",            "windows": "start explorer"},
+    "task manager": {"linux": "gnome-system-monitor","windows": "start taskmgr"},
 }
 
 WEBSITE_MAP = {
@@ -280,9 +280,25 @@ class VoiceCommandController:
         else:
             self._run(f'xdg-open "{path}"')
 
+    
     def _hotkey(self, *keys):
-        if PYAUTOGUI_AVAILABLE:
+        if not PYAUTOGUI_AVAILABLE:
+            print("❌ pyautogui not available")
+            return
+
+        try:
+            print(f"⌨️ HOTKEY: {keys}")
+
+        # Small pause improves reliability
+            pyautogui.PAUSE = 0.1
+
             pyautogui.hotkey(*keys)
+
+            time.sleep(0.2)
+
+        except Exception as e:
+            print(f"❌ Hotkey error: {e}")
+
 
     def _type_text(self, text: str):
         if PYAUTOGUI_AVAILABLE:
@@ -504,19 +520,33 @@ class VoiceCommandController:
                     self._open_folder(path)
                     self.speak(f"Opening {fname}.")
                     return True
-
-        if t.startswith("search ") or t.startswith("search for "):
-            query = t.replace("search for ", "").replace("search ", "").strip()
-            webbrowser.open(f"https://www.google.com/search?q={query.replace(' ', '+')}")
-            self.speak(f"Searching for {query}.")
+        if t.startswith("youtube ") or "search youtube" in t:
+            query = (
+                t.replace("search youtube for ", "")
+                .replace("search youtube ", "")
+                .replace("youtube ", "")
+                .strip()
+            )
+            webbrowser.open(
+                f"https://www.youtube.com/results?"
+                f"search_query={query.replace(' ', '+')}"
+            )
+            self.speak(f"Searching YouTube for {query}.")
             return True
 
-        if t.startswith("youtube ") or "search youtube" in t:
-            query = (t.replace("search youtube for ", "")
-                      .replace("search youtube ", "")
-                      .replace("youtube ", "").strip())
-            webbrowser.open(f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}")
-            self.speak(f"Searching YouTube for {query}.")
+
+        if t.startswith("search ") or t.startswith("search for "):
+            query = (
+                t.replace("search for ", "")
+                .replace("search ", "")
+                .strip()
+            )
+
+            webbrowser.open(
+                f"https://www.google.com/search?"
+                f"q={query.replace(' ', '+')}"
+            )
+            self.speak(f"Searching for {query}.")
             return True
 
         if "new tab" in t:
@@ -696,6 +726,54 @@ class VoiceCommandController:
         if t.startswith("write "):
             self._type_text(t[6:].strip())
             return True
+        
+        if t == "start presentation":
+            pyautogui.press("f5")
+            return True
+        if t == "next slide":
+            pyautogui.press("right")
+            return True
+        if t == "previous slide":
+            pyautogui.press("left")
+            return True
+        if t == "black screen":
+            pyautogui.press("b")
+            return True
+        if t == "exit presentation":
+            pyautogui.press("esc")
+            return True
+
+        
+        if t == "open downloads":
+            os.startfile(os.path.expanduser("~/Downloads"))
+            return True
+
+        if t == "open desktop":
+            os.startfile(os.path.expanduser("~/Desktop"))
+            return True
+
+        if t == "open documents":
+            os.startfile(os.path.expanduser("~/Documents"))
+            return True
+        if t == "open file explorer":
+            subprocess.Popen("explorer")
+            return True
+        if t == "lock screen":
+            self._hotkey("win", "l")
+            return True
+        if t == "volume up":
+            pyautogui.press("volumeup")
+            return True
+        if t == "volume down":
+            pyautogui.press("volumedown")
+            return True
+        if t == "mute volume":
+            pyautogui.press("volumemute")
+            return True
+        if t == "take screenshot":
+            self._hotkey("win", "shift", "s")
+            return True
+
 
         # ── Window management ──────────────────────────────────────────────
         if "minimize" in t or "minimise" in t:

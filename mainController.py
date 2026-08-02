@@ -16,12 +16,13 @@ import time
 import cv2
 import json
 import pyaudio
+import mediapipe as mp
 
 from eyefeature          import EyeTrackingMouse
 from smile               import run_smile_control
 from head                import run_head_control
 from calibration_manager import CalibrationManager
-from voice_commands      import VoiceCommandController
+from voice.voice_controller import VoiceController
 from virtual_keyboard    import run_keyboard_mode   # ← NEW
 
 voice_mode_active = threading.Event()
@@ -262,7 +263,7 @@ def run_feature(mode: int, cap, stop_flag: threading.Event,
     elif mode == 3:
         # Full voice command controller
         voice_mode_active.set()
-        vc = VoiceCommandController(cap=cap)
+        vc = VoiceController()
         result = vc.run(stop_flag)
         voice_mode_active.clear()
 
@@ -292,7 +293,9 @@ def auto_calibrate_smile(cap, calibration_manager):
 
     import mediapipe as mp
     import math
-
+    print(mp)
+    print(type(mp))
+    print(dir(mp))
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(
         max_num_faces=1,
