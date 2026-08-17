@@ -24,9 +24,10 @@ from head                import run_head_control
 from calibration_manager import CalibrationManager
 from voice.voice_controller import VoiceController
 from virtual_keyboard    import run_keyboard_mode   # ← NEW
-
+from pathlib import Path
 voice_mode_active = threading.Event()
-
+BASE_DIR = Path(__file__).resolve().parent
+VOSK_MODEL_PATH = BASE_DIR / "model"
 # ── Speech recognition imports ────────────────────────────────────────────────
 
 VOSK_AVAILABLE = False
@@ -69,7 +70,7 @@ MODE_NAMES = {
 def listen_with_vosk():
     print("\n⏳ Loading Vosk model (OFFLINE)...")
     try:
-        model = Model("model")
+        model = Model(str(VOSK_MODEL_PATH))
     except Exception as e:
         print(f"❌ Vosk model error: {e}")
         return None
