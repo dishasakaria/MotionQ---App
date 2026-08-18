@@ -25,6 +25,7 @@ from calibration_manager import CalibrationManager
 from voice.voice_controller import VoiceController
 from virtual_keyboard    import run_keyboard_mode   # ← NEW
 from pathlib import Path
+from settings import get_groq_api_key, open_settings
 voice_mode_active = threading.Event()
 BASE_DIR = Path(__file__).resolve().parent
 VOSK_MODEL_PATH = BASE_DIR / "model"
@@ -262,14 +263,28 @@ def run_feature(mode: int, cap, stop_flag: threading.Event,
         run_head_control(cap, stop_flag, calibration_manager)
 
     elif mode == 3:
-        # Full voice command controller
-        voice_mode_active.set()
-        vc = VoiceController()
-        result = vc.run(stop_flag)
-        voice_mode_active.clear()
+        if not get_groq_api_key():
+            print("\n⚠️ Groq API key is not configured.")
+            print("Opening MotionQ Settings...\n")
 
-        # If the user asked to open the keyboard from within voice mode,
-        # switch to keyboard mode immediately
+            open_settings()
+
+            if not get_groq_api_key():
+                print("❌ Groq API key was not configured.")
+                print("Returning to mode selection...\n")
+                return
+
+        voice_mode_active.set()
+
+        try:
+            vc = VoiceController()
+            result = vc.run(stop_flag)
+        except RuntimeError as e:
+            print(f"\n❌ Voice unavailable: {e}\n")
+            result = None
+        finally:
+            voice_mode_active.clear()
+
         if result == 'KEYBOARD':
             print("\n🔀 Voice → Keyboard mode\n")
             stop_flag.clear()

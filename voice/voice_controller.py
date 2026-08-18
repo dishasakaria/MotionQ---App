@@ -117,7 +117,11 @@ class VoiceController:
         log.debug("VoiceController: initialising …")
 
         # ── STT ──────────────────────────────────────────────────────────────
-        self._whisper: WhisperEngine = whisper or WhisperEngine()
+        try:
+            self._whisper: Optional[WhisperEngine] = whisper or WhisperEngine()
+        except RuntimeError as e:
+            log.error(str(e))
+            self._whisper = None
 
         # ── NLU ──────────────────────────────────────────────────────────────
         self._parser: ParameterParser = parser or ParameterParser()
@@ -401,6 +405,9 @@ class VoiceController:
         # WhisperEngine was already started in start(); don't call it again.
         # If your WhisperEngine.start() is idempotent, calling it here is safe.
         try:
+            if self._whisper is None:
+                 log.error("Groq voice unavailable: API key is not configured.")
+                 return
             self._whisper.start()
         except Exception as exc:
             log.critical("_listen_loop: WhisperEngine.start() failed: %s", exc,
@@ -410,7 +417,11 @@ class VoiceController:
 
         while not self._stop_event.is_set():
             try:
-                raw: Optional[str] = self._whisper.get_text()
+                raw: Optional[str] = (
+                    self._whisper.get_text()
+                    if self._whisper is not None
+                    else None
+                )
             except Exception as exc:
                 log.error("_listen_loop: WhisperEngine.get_text() error: %s", exc,
                           exc_info=True)

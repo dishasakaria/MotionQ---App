@@ -11,6 +11,7 @@ import sounddevice as sd
 import soundfile as sf
 from dotenv import load_dotenv
 from groq import Groq
+from settings import get_groq_api_key
 load_dotenv()
 log = logging.getLogger("WhisperEngine")
 logging.basicConfig(level=logging.INFO)
@@ -39,9 +40,15 @@ class WhisperEngine:
         self.sample_rate = sample_rate
         self.chunk_duration = chunk_duration
 
-        self.client = Groq(
-            api_key=os.getenv("GROQ_API_KEY")
-        )
+        api_key = get_groq_api_key() or os.getenv("GROQ_API_KEY")
+
+        if not api_key:
+             raise RuntimeError(
+                  "Groq API key is not configured. "
+                  "Please add your Groq API key in MotionQ Settings."
+                )
+
+        self.client = Groq(api_key=api_key)
 
         self.audio_queue = queue.Queue()
         self.transcript_queue = queue.Queue()

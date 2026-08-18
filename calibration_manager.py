@@ -10,7 +10,15 @@ import time
 class CalibrationManager:
     """Manages saving and loading calibration data for all features"""
 
-    def __init__(self, filepath="calibration_data.json"):
+    def __init__(self, filepath=None):
+        if filepath is None:
+            app_data = os.path.join(
+                os.environ["LOCALAPPDATA"],
+                "MotionQ"
+            )
+            os.makedirs(app_data, exist_ok=True)
+            filepath = os.path.join(app_data, "calibration_data.json")
+
         self.filepath = filepath
         self.data = self.load()
 

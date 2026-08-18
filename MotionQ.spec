@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-from PyInstaller.utils.hooks import collect_all
+from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_dynamic_libs
 
 datas = [('model', 'model'), ('model-en-in', 'model-en-in'), ('voice', 'voice')]
 binaries = []
@@ -8,7 +8,12 @@ tmp_ret = collect_all('vosk')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('mediapipe')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+soundfile_datas = collect_data_files('soundfile')
+soundfile_binaries = collect_dynamic_libs('soundfile')
 
+datas += soundfile_datas
+binaries += soundfile_binaries
+hiddenimports += ['soundfile']
 
 a = Analysis(
     ['mainController.py'],
