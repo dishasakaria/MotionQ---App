@@ -224,6 +224,18 @@ class VoiceController:
         self._last_cmd_time = 0.0
         self._running = True
 
+        if self._whisper is None:
+            log.error("Groq voice unavailable: API key is not configured.")
+            self._running = False
+            return
+
+        try:
+            self._whisper.start()
+        except Exception as exc:
+            log.error("WhisperEngine.start() failed: %s", exc, exc_info=True)
+            self._running = False
+            return
+        
         self._listen_thread = threading.Thread(
             target=self._listen_loop,
             name="vc-listen",
@@ -404,16 +416,7 @@ class VoiceController:
 
         # WhisperEngine was already started in start(); don't call it again.
         # If your WhisperEngine.start() is idempotent, calling it here is safe.
-        try:
-            if self._whisper is None:
-                 log.error("Groq voice unavailable: API key is not configured.")
-                 return
-            self._whisper.start()
-        except Exception as exc:
-            log.critical("_listen_loop: WhisperEngine.start() failed: %s", exc,
-                         exc_info=True)
-            self._stop_event.set()
-            return
+        
 
         while not self._stop_event.is_set():
             try:

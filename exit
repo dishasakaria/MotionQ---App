@@ -1,0 +1,53 @@
+[1mdiff --git a/voice/voice_controller.py b/voice/voice_controller.py[m
+[1mindex 542465e..b2e9bba 100644[m
+[1m--- a/voice/voice_controller.py[m
+[1m+++ b/voice/voice_controller.py[m
+[36m@@ -224,6 +224,18 @@[m [mclass VoiceController:[m
+         self._last_cmd_time = 0.0[m
+         self._running = True[m
+ [m
+[32m+[m[32m        if self._whisper is None:[m
+[32m+[m[32m            log.error("Groq voice unavailable: API key is not configured.")[m
+[32m+[m[32m            self._running = False[m
+[32m+[m[32m            return[m
+[32m+[m
+[32m+[m[32m        try:[m
+[32m+[m[32m            self._whisper.start()[m
+[32m+[m[32m        except Exception as exc:[m
+[32m+[m[32m            log.error("WhisperEngine.start() failed: %s", exc, exc_info=True)[m
+[32m+[m[32m            self._running = False[m
+[32m+[m[32m            return[m
+[32m+[m[41m        [m
+         self._listen_thread = threading.Thread([m
+             target=self._listen_loop,[m
+             name="vc-listen",[m
+[36m@@ -404,16 +416,7 @@[m [mclass VoiceController:[m
+ [m
+         # WhisperEngine was already started in start(); don't call it again.[m
+         # If your WhisperEngine.start() is idempotent, calling it here is safe.[m
+[31m-        try:[m
+[31m-            if self._whisper is None:[m
+[31m-                 log.error("Groq voice unavailable: API key is not configured.")[m
+[31m-                 return[m
+[31m-            self._whisper.start()[m
+[31m-        except Exception as exc:[m
+[31m-            log.critical("_listen_loop: WhisperEngine.start() failed: %s", exc,[m
+[31m-                         exc_info=True)[m
+[31m-            self._stop_event.set()[m
+[31m-            return[m
+[32m+[m[41m        [m
+ [m
+         while not self._stop_event.is_set():[m
+             try:[m
+[1mdiff --git a/voice/whisper_engine.py b/voice/whisper_engine.py[m
+[1mindex 3356931..2208059 100644[m
+[1m--- a/voice/whisper_engine.py[m
+[1m+++ b/voice/whisper_engine.py[m
+[36m@@ -115,6 +115,7 @@[m [mclass WhisperEngine:[m
+                 continue[m
+ [m
+             audio_data = np.concatenate(frames, axis=0)[m
+[32m+[m[41m            [m
+ [m
+             rms = np.sqrt(np.mean(audio_data**2))[m
+ [m

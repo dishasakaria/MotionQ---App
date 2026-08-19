@@ -115,6 +115,7 @@ class WhisperEngine:
                 continue
 
             audio_data = np.concatenate(frames, axis=0)
+            
 
             rms = np.sqrt(np.mean(audio_data**2))
 

@@ -3,7 +3,7 @@ from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_dyn
 
 datas = [('model', 'model'), ('model-en-in', 'model-en-in'), ('voice', 'voice')]
 binaries = []
-hiddenimports = []
+hiddenimports = ['mainController']
 tmp_ret = collect_all('vosk')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('mediapipe')
@@ -16,7 +16,7 @@ binaries += soundfile_binaries
 hiddenimports += ['soundfile']
 
 a = Analysis(
-    ['mainController.py'],
+    ['app_launcher.py'],
     pathex=[],
     binaries=binaries,
     datas=datas,
@@ -40,7 +40,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

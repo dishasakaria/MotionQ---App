@@ -26,6 +26,8 @@ from voice.voice_controller import VoiceController
 from virtual_keyboard    import run_keyboard_mode   # ← NEW
 from pathlib import Path
 from settings import get_groq_api_key, open_settings
+from app_logging import setup_logging
+setup_logging()
 voice_mode_active = threading.Event()
 BASE_DIR = Path(__file__).resolve().parent
 VOSK_MODEL_PATH = BASE_DIR / "model"
